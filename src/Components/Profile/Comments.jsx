@@ -38,7 +38,7 @@ const Comments = ({ reportId }) => {
     // const maxReconnectAttempts = 10;
 
     const connectWebSocket = () => {
-      socket = new WebSocket("ws://localhost:4040");
+      socket = new WebSocket("ws://backoasis-production.up.railway.app");
 
       // socket.onopen = () => {
       //   console.log("WebSocket connection established");

@@ -229,7 +229,7 @@ function Dashboard({ username }) {
   useEffect(() => {
     fetchUsers();
     fetchReports();
-    const socket = new WebSocket("ws://localhost:4040");
+    const socket = new WebSocket("ws://backoasis-production.up.railway.app");
 
     socket.onmessage = (event) => {
       const message = JSON.parse(event.data);
