@@ -27,7 +27,7 @@ const ReportForm = ({ handleSubmit, users }) => {
   useEffect(() => {
     const fetchReports = async () => {
       try {
-        const response = await axios.get("/report");
+        const response = await axios.get("https://backoasis-production.up.railway.app/report");
         setReports(response.data);
       } catch (error) {
         console.error("Error fetching reports:", error);
@@ -51,7 +51,7 @@ const ReportForm = ({ handleSubmit, users }) => {
 
     if (confirmDelete.value) {
       try {
-        await axios.delete(`/report/${reportId}`);
+        await axios.delete(`https://backoasis-production.up.railway.app/report/${reportId}`);
         const updatedReports = reports.filter(
           (report) => report._id !== reportId
         );
@@ -77,7 +77,7 @@ const ReportForm = ({ handleSubmit, users }) => {
   const handleStateChange = async (e, reportId) => {
     const newState = e.target.value;
     try {
-      await axios.put(`/report/${reportId}`, { state: newState });
+      await axios.put(`https://backoasis-production.up.railway.app/report/${reportId}`, { state: newState });
       const updatedReports = reports.map((report) =>
         report._id === reportId ? { ...report, state: newState } : report
       );

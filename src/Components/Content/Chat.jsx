@@ -56,7 +56,7 @@ export default function Chat() {
       })
     );
     if (file) {
-      axios.get("/messages/" + selectedUserId).then((res) => {
+      axios.get("https://backoasis-production.up.railway.app/messages/" + selectedUserId).then((res) => {
         setMessages(res.data);
       });
     } else {
@@ -91,7 +91,7 @@ export default function Chat() {
   }, [messages]);
 
   useEffect(() => {
-    axios.get("/people").then((res) => {
+    axios.get("https://backoasis-production.up.railway.app/people").then((res) => {
       const offlinePeopleArr = res.data
         .filter((p) => p._id !== id)
         .filter((p) => !Object.keys(onlinePeople).includes(p._id));
@@ -105,7 +105,7 @@ export default function Chat() {
 
   useEffect(() => {
     if (selectedUserId) {
-      axios.get("/messages/" + selectedUserId).then((res) => {
+      axios.get("https://backoasis-production.up.railway.app/messages/" + selectedUserId).then((res) => {
         setMessages(res.data);
       });
     }

@@ -17,7 +17,7 @@ const CommentSection = ({ reportId }) => {
   useEffect(() => {
     const fetchComments = async () => {
       try {
-        const response = await axios.get(`/report/${reportId}/comments`);
+        const response = await axios.get(`https://backoasis-production.up.railway.app/report/${reportId}/comments`);
         setComments(response.data);
       } catch (error) {
         console.error("Error fetching comments", error);
@@ -64,7 +64,7 @@ const CommentSection = ({ reportId }) => {
 
   const handleAddComment = async () => {
     try {
-      const response = await axios.post(`/report/${reportId}/comment`, { text: newComment });
+      const response = await axios.post(`https://backoasis-production.up.railway.app/report/${reportId}/comment`, { text: newComment });
 
       console.log(response.data); 
       setNewComment('');
@@ -75,7 +75,7 @@ const CommentSection = ({ reportId }) => {
   
   const handleEditComment = async (commentId) => {
     try {
-      const response = await axios.put(`/report/${reportId}/comment/${commentId}`, { text: editingText });
+      const response = await axios.put(`https://backoasis-production.up.railway.app/report/${reportId}/comment/${commentId}`, { text: editingText });
 
       console.log(response.data); 
       setEditingCommentId(null);
@@ -87,7 +87,7 @@ const CommentSection = ({ reportId }) => {
 
   const handleDeleteComment = async (commentId) => {
     try {
-      await axios.delete(`/report/${reportId}/comment/${commentId}`);
+      await axios.delete(`https://backoasis-production.up.railway.app/report/${reportId}/comment/${commentId}`);
     } catch (error) {
       console.error("Error deleting comment", error);
     }

@@ -25,7 +25,7 @@ const UserTable = () => {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await axios.get("/users");
+        const response = await axios.get("https://backoasis-production.up.railway.app/users");
         setUsers(response.data);
       } catch (error) {
         console.error("Error fetching users:", error);

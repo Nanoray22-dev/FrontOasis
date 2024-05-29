@@ -41,7 +41,7 @@ const Navigation = () => {
   }, [isOpen]);
 
   function logout() {
-    axios.post("/logout").then(() => {
+    axios.post("https://backoasis-production.up.railway.app/logout").then(() => {
       setWs(null);
       setId(null);
       setUsername(null);
