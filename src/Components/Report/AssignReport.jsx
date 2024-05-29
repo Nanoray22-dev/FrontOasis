@@ -11,7 +11,7 @@ const AssignReport = () => {
   useEffect(() => {
     const fetchReports = async () => {
       try {
-        const response = await axios.get("https://backoasis-production.up.railway.app/report");
+        const response = await axios.get("/report");
         setReports(response.data);
       } catch (error) {
         console.error("Error fetching reports:", error);
@@ -20,7 +20,7 @@ const AssignReport = () => {
 
     const fetchUsers = async () => {
       try {
-        const response = await axios.get("https://backoasis-production.up.railway.app/users");
+        const response = await axios.get("/users");
         setUsers(response.data);
       } catch (error) {
         console.error("Error fetching users:", error);
@@ -46,7 +46,7 @@ const AssignReport = () => {
       }
 
       // Envía una solicitud al servidor para asignar el informe al usuario seleccionado
-      await axios.post(`https://backoasis-production.up.railway.app/assign-report/${reportId}`, { userId: selectedUser });
+      await axios.post(`/assign-report/${reportId}`, { userId: selectedUser });
 
       // Muestra un mensaje de éxito
       Swal.fire({

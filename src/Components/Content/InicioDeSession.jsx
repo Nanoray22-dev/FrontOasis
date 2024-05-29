@@ -16,12 +16,15 @@ export default function RegisterAndLoginForm({notification}) {
   const [passwordError, setPasswordError] = useState(false);
   const navigate = useNavigate();
 
+  const api = axios.create({
+    baseURL : import.meta.env.VITE_API
+  })
   async function handleSubmit(ev) {
     ev.preventDefault();
     setIsLoading(true);
     const url = isLoginOrRegister === "register" ? "register" : "login";
     try {
-      const { data } = await axios.post(url, { username, password });
+      const { data } = await api.post(url, { username, password });
       setLoggedInUsername(username);
       setId(data.id);
       setRole(data.role);
