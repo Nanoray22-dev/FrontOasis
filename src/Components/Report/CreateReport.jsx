@@ -17,28 +17,29 @@ const CreateReport = ({ onCloseModal, onReportCreated }) => {
       formData.append("title", title);
       formData.append("description", description);
       formData.append("state", selectedState);
-      images.forEach((image) => {
-        formData.append("image", image); // Asegúrate de que el campo sea image
+      images.forEach((image, index) => {
+        formData.append(`image[${index}]`, image);
       });
       formData.append("incidentDate", incidentDate);
-
+  
       // Log formData entries for debugging
       for (let pair of formData.entries()) {
         console.log(`${pair[0]}: ${pair[1]}`);
       }
-
+  
       const response = await axios.post(
         "https://backoasis-production.up.railway.app/report",
         formData,
         {
+          withCredentials: true, // Asegura que las cookies se envían con la solicitud
           headers: {
             "Content-Type": "multipart/form-data",
           },
         }
       );
-
+  
       console.log("Report created:", response.data);
-
+  
       setReports([...reports, response.data]);
       Swal.fire({
         title: "Reporte creado",
@@ -47,12 +48,12 @@ const CreateReport = ({ onCloseModal, onReportCreated }) => {
         showConfirmButton: false,
         timer: 1500,
       });
-
+  
       setTitle("");
       setDescription("");
       setImages([]);
       setIncidentDate("");
-
+  
       onReportCreated(response.data);
       onCloseModal();
     } catch (error) {
@@ -60,6 +61,7 @@ const CreateReport = ({ onCloseModal, onReportCreated }) => {
       Swal.fire("Error", "Ha ocurrido un error al crear el reporte", "error");
     }
   };
+  
 
   const handleImageChange = (e) => {
     const files = Array.from(e.target.files);
