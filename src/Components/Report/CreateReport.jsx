@@ -7,40 +7,34 @@ const CreateReport = ({ onCloseModal, onReportCreated }) => {
   const [description, setDescription] = useState("");
   const [images, setImages] = useState([]);
   const [incidentDate, setIncidentDate] = useState("");
-  const [reports, setReports] = useState([]);
-  const [selectedState] = useState("PENDING");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+
     try {
       const formData = new FormData();
       formData.append("title", title);
       formData.append("description", description);
-      formData.append("state", selectedState);
-      images.forEach((image, index) => {
-        formData.append(`image[${index}]`, image);
+      formData.append("state", "PENDING");
+      images.slice(0, 3).forEach((image) => {
+        formData.append("image", image); 
       });
       formData.append("incidentDate", incidentDate);
-  
-      // Log formData entries for debugging
-      for (let pair of formData.entries()) {
-        console.log(`${pair[0]}: ${pair[1]}`);
-      }
-  
+
       const response = await axios.post(
         "https://backoasis-production.up.railway.app/report",
         formData,
         {
-          withCredentials: true, // Asegura que las cookies se envían con la solicitud
+          withCredentials: true,
           headers: {
             "Content-Type": "multipart/form-data",
           },
         }
       );
-  
-      console.log("Report created:", response.data);
-  
-      setReports([...reports, response.data]);
+
       Swal.fire({
         title: "Reporte creado",
         text: "El reporte se ha creado con éxito",
@@ -48,24 +42,29 @@ const CreateReport = ({ onCloseModal, onReportCreated }) => {
         showConfirmButton: false,
         timer: 1500,
       });
-  
+
       setTitle("");
       setDescription("");
       setImages([]);
       setIncidentDate("");
-  
+
       onReportCreated(response.data);
       onCloseModal();
     } catch (error) {
       console.error("Error creating report:", error);
       Swal.fire("Error", "Ha ocurrido un error al crear el reporte", "error");
+    } finally {
+      setIsSubmitting(false);
     }
   };
-  
 
   const handleImageChange = (e) => {
     const files = Array.from(e.target.files);
-    setImages((prevImages) => [...prevImages, ...files]);
+    if (files.length <= 3) {
+      setImages(files); // Reemplazar las imágenes existentes con las nuevas
+    } else {
+      Swal.fire("Error", "Solo puedes subir hasta 3 imágenes", "error");
+    }
   };
 
   return (
@@ -74,7 +73,9 @@ const CreateReport = ({ onCloseModal, onReportCreated }) => {
         <h2 className="text-2xl font-semibold mb-8 text-center">Crear Reporte</h2>
         <form onSubmit={handleSubmit} className="space-y-4 p-4 mb-4 px-8">
           <div>
-            <label htmlFor="title" className="block text-sm font-medium text-gray-700">Título:</label>
+            <label htmlFor="title" className="block text-sm font-medium text-gray-700">
+              Título:
+            </label>
             <input
               className="title bg-gray-100 border border-gray-300 p-2 mb-4 w-full rounded-md outline-none"
               type="text"
@@ -85,7 +86,9 @@ const CreateReport = ({ onCloseModal, onReportCreated }) => {
             />
           </div>
           <div>
-            <label htmlFor="description" className="block text-sm font-medium text-gray-700">Descripción:</label>
+            <label htmlFor="description" className="block text-sm font-medium text-gray-700">
+              Descripción:
+            </label>
             <textarea
               className="description bg-gray-100 sec p-3 h-32 border border-gray-300 rounded-md outline-none min-w-full"
               id="description"
@@ -141,7 +144,9 @@ const CreateReport = ({ onCloseModal, onReportCreated }) => {
             </div>
           )}
           <div>
-            <label htmlFor="incidentDate" className="block text-sm font-medium text-gray-700">Fecha de la incidencia:</label>
+            <label htmlFor="incidentDate" className="block text-sm font-medium text-gray-700">
+              Fecha de la incidencia:
+            </label>
             <input
               type="date"
               id="incidentDate"
@@ -154,7 +159,10 @@ const CreateReport = ({ onCloseModal, onReportCreated }) => {
           <div className="flex justify-end">
             <button
               type="submit"
-              className="bg-indigo-600 text-white px-4 py-2 rounded-lg mr-2 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-100"
+              className={`bg-indigo-600 text-white px-4 py-2 rounded-lg mr-2 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-100 ${
+                isSubmitting ? "opacity-50 cursor-not-allowed" : ""
+              }`}
+              disabled={isSubmitting}
             >
               Crear Reporte
             </button>
