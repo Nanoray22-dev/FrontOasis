@@ -1,24 +1,21 @@
 import axios from "axios";
-import {UserContext, UserContextProvider} from "./UserContext";
+import { UserContext, UserContextProvider } from "./UserContext";
 import Routes from "./Routes";
-import { BrowserRouter  } from 'react-router-dom';
+import { BrowserRouter } from "react-router-dom";
 import { useContext } from "react";
-import '@mantine/core/styles.css';
-import { MantineProvider } from '@mantine/core';
+import "@mantine/core/styles.css";
 
 function App() {
-  axios.defaults.baseURL = 'https://backoasis-production.up.railway.app/';
+  axios.defaults.baseURL = "https://backoasis-production.up.railway.app/";
   axios.defaults.withCredentials = true;
-const {setUsername} = useContext(UserContext)
+  const { setUsername } = useContext(UserContext);
   return (
     <BrowserRouter>
-    <UserContextProvider>
-      <MantineProvider>
-      <Routes  setUsername={setUsername}/>
-      </MantineProvider>
-    </UserContextProvider>
+      <UserContextProvider>
+        <Routes setUsername={setUsername} />
+      </UserContextProvider>
     </BrowserRouter>
-  )
+  );
 }
 
-export default App
+export default App;
