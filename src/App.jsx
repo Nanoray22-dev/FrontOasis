@@ -4,7 +4,7 @@ import Routes from "./Routes";
 import { BrowserRouter  } from 'react-router-dom';
 import { useContext } from "react";
 import '@mantine/core/styles.css';
-// import { MantineProvider } from '@mantine/core';
+import { MantineProvider } from '@mantine/core';
 
 function App() {
   axios.defaults.baseURL = 'https://backoasis-production.up.railway.app/';
@@ -13,9 +13,9 @@ const {setUsername} = useContext(UserContext)
   return (
     <BrowserRouter>
     <UserContextProvider>
-      {/* <MantineProvider> */}
+      <MantineProvider>
       <Routes  setUsername={setUsername}/>
-      {/* </MantineProvider> */}
+      </MantineProvider>
     </UserContextProvider>
     </BrowserRouter>
   )
