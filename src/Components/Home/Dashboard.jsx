@@ -1,27 +1,59 @@
-import axios from 'axios';
-import { useContext, useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { UserContext } from '../../UserContext';
-import { RiLogoutBoxRLine } from 'react-icons/ri';
-import { MdOutlineContactMail, MdOutlineContactSupport, MdOutlinePayments } from 'react-icons/md';
-import { CgDarkMode } from 'react-icons/cg';
-import { Bar, Line } from 'react-chartjs-2';
-import 'chart.js/auto';
-import moment from 'moment';
-import Sidebar from './Sidebar';
-import Header from './Header';
-import UseReport from './hooks/UseReport';
-import User from './hooks/User';
+import axios from "axios";
+import { useContext, useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { UserContext } from "../../UserContext";
+import { RiLogoutBoxRLine } from "react-icons/ri";
+import {
+  MdOutlineContactMail,
+  MdOutlineContactSupport,
+  MdOutlinePayments,
+} from "react-icons/md";
+import { CgDarkMode } from "react-icons/cg";
+import { Bar, Line } from "react-chartjs-2";
+import "chart.js/auto";
+import moment from "moment";
+import Sidebar from "./Sidebar";
+import Header from "./Header";
+import UseReport from "./hooks/UseReport";
+import User from "./hooks/User";
 
 function Dashboard({ username }) {
-  const navigate = useNavigate();
+  const history = useNavigate();
   const { setId, setUsername } = useContext(UserContext);
-  const [ws, setWs] = useState(null);
-  const [filter, setFilter] = useState('month');
+  const [, setWs] = useState(null);
+  const [filter, setFilter] = useState("month");
   const [showNotifications, setShowNotifications] = useState(false);
   const [notifications, setNotifications] = useState([]);
-  const { users, setUsers, totalUsersCount, setTotalUsersCount, usersByMonth, setUsersByMonth, usersByDay, setUsersByDay, usersByWeek, setUsersByWeek } = User();
-  const { pendingReportsCount, setPendingReportsCount, inProgressReportsCount, setInProgressReportsCount, completedReportsCount, setCompletedReportsCount, totalReportsCount, setTotalReportsCount, reports, setReports, reportsByDay, setReportsByDay, reportsByWeek, setReportsByWeek, reportsByMonth, setReportsByMonth } = UseReport();
+  const {
+    users,
+    setUsers,
+    totalUsersCount,
+    setTotalUsersCount,
+    usersByMonth,
+    setUsersByMonth,
+    usersByDay,
+    setUsersByDay,
+    usersByWeek,
+    setUsersByWeek,
+  } = User();
+  const {
+    pendingReportsCount,
+    setPendingReportsCount,
+    inProgressReportsCount,
+    setInProgressReportsCount,
+    completedReportsCount,
+    setCompletedReportsCount,
+    totalReportsCount,
+    setTotalReportsCount,
+    reports,
+    setReports,
+    reportsByDay,
+    setReportsByDay,
+    reportsByWeek,
+    setReportsByWeek,
+    reportsByMonth,
+    setReportsByMonth,
+  } = UseReport();
 
   const getRandomProfileImage = () => {
     const randomId = Math.floor(Math.random() * 100) + 1;
@@ -30,11 +62,11 @@ function Dashboard({ username }) {
 
   const getFilteredData = (dataByDay, dataByWeek, dataByMonth) => {
     switch (filter) {
-      case 'day':
+      case "day":
         return dataByDay;
-      case 'week':
+      case "week":
         return dataByWeek;
-      case 'month':
+      case "month":
       default:
         return dataByMonth;
     }
@@ -42,26 +74,26 @@ function Dashboard({ username }) {
 
   const fetchUsers = async () => {
     try {
-      const response = await axios.get('https://backoasis-production.up.railway.app/users', { withCredentials: true });
+      const response = await axios.get("https://backoasis-production.up.railway.app/users");
       const usersData = response.data;
       setTotalUsersCount(usersData.length);
 
       const usersByDayData = usersData.reduce((acc, user) => {
-        const day = moment(user.createdAt).format('YYYY-MM-DD');
+        const day = moment(user.createdAt).format("YYYY-MM-DD");
         if (!acc[day]) acc[day] = 0;
         acc[day]++;
         return acc;
       }, {});
 
       const usersByWeekData = usersData.reduce((acc, user) => {
-        const week = moment(user.createdAt).format('YYYY-[W]WW');
+        const week = moment(user.createdAt).format("YYYY-[W]WW");
         if (!acc[week]) acc[week] = 0;
         acc[week]++;
         return acc;
       }, {});
 
       const usersByMonthData = usersData.reduce((acc, user) => {
-        const month = moment(user.createdAt).format('YYYY-MM');
+        const month = moment(user.createdAt).format("YYYY-MM");
         if (!acc[month]) acc[month] = 0;
         acc[month]++;
         return acc;
@@ -78,43 +110,48 @@ function Dashboard({ username }) {
       }));
       setUsers(usersWithImages);
     } catch (error) {
-      console.error('Error fetching users:', error);
+      console.error("Error fetching users:", error);
     }
   };
 
   const fetchReports = async () => {
     try {
-      const response = await axios.get('https://backoasis-production.up.railway.app/report', { withCredentials: true });
+      const response = await axios.get("https://backoasis-production.up.railway.app/report");
       const reportsData = response.data;
       setReports(reportsData);
       updateReports(reportsData);
 
-      const pendingCount = reportsData.filter((report) => report.state === 'PENDING').length;
-      const inProgressCount = reportsData.filter((report) => report.state === 'PROGRESS').length;
-      const completedReportsCount = reportsData.filter((report) => report.state === 'COMPLETED').length;
+      const pendingCount = reportsData.filter(
+        (report) => report.state === "PENDING"
+      ).length;
+      const inProgressCount = reportsData.filter(
+        (report) => report.state === "PROGRESS"
+      ).length;
+      const completedReportsCount = reportsData.filter(
+        (report) => report.state === "COMPLETED"
+      ).length;
 
       setPendingReportsCount(pendingCount);
       setInProgressReportsCount(inProgressCount);
       setCompletedReportsCount(completedReportsCount);
       setTotalReportsCount(reportsData.length);
       updateChartData();
-
       const reportsByDayData = reportsData.reduce((acc, report) => {
-        const day = moment(report.incidentDate).format('YYYY-MM-DD');
+        const day = moment(report.incidentDate).format("YYYY-MM-DD");
         if (!acc[day]) acc[day] = 0;
         acc[day]++;
         return acc;
       }, {});
 
       const reportsByWeekData = reportsData.reduce((acc, report) => {
-        const week = moment(report.incidentDate).format('YYYY-[W]WW');
+        const week = moment(report.incidentDate).format("YYYY-[W]WW");
         if (!acc[week]) acc[week] = 0;
         acc[week]++;
         return acc;
       }, {});
 
       const reportsByMonthData = reportsData.reduce((acc, report) => {
-        const month = moment(report.incidentDate).format('YYYY-MM');
+        const month = moment(report.incidentDate).format("YYYY-MM");
         if (!acc[month]) acc[month] = 0;
         acc[month]++;
         return acc;
@@ -124,7 +161,7 @@ function Dashboard({ username }) {
       setReportsByWeek(reportsByWeekData);
       setReportsByMonth(reportsByMonthData);
     } catch (error) {
-      console.error('Error fetching reports:', error);
+      console.error("Error fetching reports:", error);
     }
   };
 
@@ -134,34 +171,39 @@ function Dashboard({ username }) {
       return updatedReports.slice(-8);
     });
   };
-
   const updateChartData = () => {};
 
   const getsColorState = (state) => {
     switch (state) {
-      case 'PENDING':
-        return 'bg-yellow-100 text-yellow-800';
-      case 'PROGRESS':
-        return 'bg-blue-100 text-blue-800';
-      case 'COMPLETED':
-        return 'bg-green-100 text-green-800';
-      case 'CLOSED':
-        return 'bg-gray-100 text-gray-800';
-      case 'REJECTED':
-        return 'bg-red-100 text-red-800';
+      case "PENDING":
+        return "bg-yellow-100 text-yellow-800";
+      case "PROGRESS":
+        return "bg-blue-100 text-blue-800";
+      case "COMPLETED":
+        return "bg-green-100 text-green-800";
+      case "CLOSED":
+        return "bg-gray-100 text-gray-800";
+      case "REJECTED":
+        return "bg-red-100 text-red-800";
       default:
-        return 'bg-gray-100 text-gray-800';
+        return "bg-gray-100 text-gray-800";
     }
   };
 
   const chartData = {
-    labels: Object.keys(getFilteredData(reportsByDay, reportsByWeek, reportsByMonth)),
+    labels: Object.keys(
+      getFilteredData(reportsByDay, reportsByWeek, reportsByMonth)
+    ),
     datasets: [
       {
-        label: `Reports per ${filter.charAt(0).toUpperCase() + filter.slice(1)}`,
-        data: Object.values(getFilteredData(reportsByDay, reportsByWeek, reportsByMonth)),
-        backgroundColor: 'rgba(75, 192, 192, 0.6)',
-        borderColor: 'rgba(75, 192, 192, 1)',
+        label: `Reports per ${
+          filter.charAt(0).toUpperCase() + filter.slice(1)
+        }`,
+        data: Object.values(
+          getFilteredData(reportsByDay, reportsByWeek, reportsByMonth)
+        ),
+        backgroundColor: "rgba(75, 192, 192, 0.6)",
+        borderColor: "rgba(75, 192, 192, 1)",
         borderWidth: 1,
       },
     ],
@@ -171,10 +213,14 @@ function Dashboard({ username }) {
     labels: Object.keys(getFilteredData(usersByDay, usersByWeek, usersByMonth)),
     datasets: [
       {
-        label: `Residents per ${filter.charAt(0).toUpperCase() + filter.slice(1)}`,
-        data: Object.values(getFilteredData(usersByDay, usersByWeek, usersByMonth)),
-        backgroundColor: 'rgba(54, 162, 235, 0.6)',
-        borderColor: 'rgba(54, 162, 235, 1)',
+        label: `Residents per ${
+          filter.charAt(0).toUpperCase() + filter.slice(1)
+        }`,
+        data: Object.values(
+          getFilteredData(usersByDay, usersByWeek, usersByMonth)
+        ),
+        backgroundColor: "rgba(54, 162, 235, 0.6)",
+        borderColor: "rgba(54, 162, 235, 1)",
         borderWidth: 1,
       },
     ],
@@ -183,62 +229,38 @@ function Dashboard({ username }) {
   useEffect(() => {
     fetchUsers();
     fetchReports();
-
-    const socket = new WebSocket('wss://backoasis-production.up.railway.app');
-
-    socket.onopen = () => {
-      console.log('Connected to WebSocket');
-      setWs(socket);
-    };
-
-    socket.onclose = (event) => {
-      console.error('WebSocket closed:', event);
-      setTimeout(() => {
-        setWs(new WebSocket('wss://backoasis-production.up.railway.app'));
-      }, 5000); // retry connection after 5 seconds
-    };
+    const socket = new WebSocket("wss://backoasis-production.up.railway.app");
 
     socket.onmessage = (event) => {
       const message = JSON.parse(event.data);
-      if (message.type === 'new-report') {
+      if (message.type === "new-report") {
         setNotifications((prevNotifications) => [
           ...prevNotifications,
           message.data,
         ]);
         fetchReports();
-      } else if (message.type === 'delete-report') {
+      } else if (message.type === "delete-report") {
         setReports((prevReports) =>
-          prevReports.filter((report) => report._id !== message.reportId)
+          prevReports.filter((report) => report._id === message.reportId)
         );
         fetchReports();
-      } else if (message.type === 'update-report') {
+      } else if (message.type === "update-report") {
         setReports((prevReports) =>
-          prevReports.map((report) =>
-            report._id === message.reportId ? message.data : report
-          )
+          prevReports.filter((report) => report._id === message.reportId)
         );
         fetchReports();
-      }
-    };
-
-    return () => {
-      if (socket) {
-        socket.close();
       }
     };
   }, [setNotifications]);
 
   function logout() {
-    axios.post('https://backoasis-production.up.railway.app/logout', null, { withCredentials: true }).then(() => {
-      if (ws) {
-        ws.close();
-      }
+    axios.post("https://backoasis-production.up.railway.app/logout").then(() => {
+      setWs(null);
       setId(null);
       setUsername(null);
-      navigate('/');
+      history("/");
     });
   }
-
   return (
     <>
       <title>Dashboard</title>
