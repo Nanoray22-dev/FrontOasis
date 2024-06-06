@@ -1,6 +1,6 @@
 import axios from "axios";
 import { useContext, useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import {Link, useNavigate } from "react-router-dom";
 import { UserContext } from "../../UserContext";
 import { RiLogoutBoxRLine } from "react-icons/ri";
 import {
@@ -18,9 +18,9 @@ import UseReport from "./hooks/UseReport";
 import User from "./hooks/User";
 
 function Dashboard({ username }) {
-  const history = useNavigate();
+  const navigate = useNavigate();
   const { setId, setUsername } = useContext(UserContext);
-  const [, setWs] = useState(null);
+  const [ws, setWs] = useState(null);
   const [filter, setFilter] = useState("month");
   const [showNotifications, setShowNotifications] = useState(false);
   const [notifications, setNotifications] = useState([]);
@@ -74,7 +74,7 @@ function Dashboard({ username }) {
 
   const fetchUsers = async () => {
     try {
-      const response = await axios.get("https://backoasis-production.up.railway.app/users");
+      const response = await axios.get("https://backoasis-production.up.railway.app/users", { withCredentials: true });
       const usersData = response.data;
       setTotalUsersCount(usersData.length);
 
@@ -116,7 +116,7 @@ function Dashboard({ username }) {
 
   const fetchReports = async () => {
     try {
-      const response = await axios.get("https://backoasis-production.up.railway.app/report");
+      const response = await axios.get("https://backoasis-production.up.railway.app/report", { withCredentials: true });
       const reportsData = response.data;
       setReports(reportsData);
       updateReports(reportsData);
@@ -171,6 +171,7 @@ function Dashboard({ username }) {
       return updatedReports.slice(-8);
     });
   };
+  
   const updateChartData = () => {};
 
   const getsColorState = (state) => {
@@ -229,7 +230,24 @@ function Dashboard({ username }) {
   useEffect(() => {
     fetchUsers();
     fetchReports();
+    
     const socket = new WebSocket("wss://backoasis-production.up.railway.app");
+
+    socket.onopen = () => {
+      console.log("Connected to WebSocket");
+      setWs(socket);
+    };
+
+    socket.onclose = (event) => {
+      console.error("WebSocket closed:", event);
+      setTimeout(() => {
+        setWs(new WebSocket("wss://backoasis-production.up.railway.app"));
+      }, 5000); // retry connection after 5 seconds
+    };
+
+    // socket.onerror = (error) => {
+    //   console.error("WebSocket error:", error);
+    // };
 
     socket.onmessage = (event) => {
       const message = JSON.parse(event.data);
@@ -241,26 +259,37 @@ function Dashboard({ username }) {
         fetchReports();
       } else if (message.type === "delete-report") {
         setReports((prevReports) =>
-          prevReports.filter((report) => report._id === message.reportId)
+          prevReports.filter((report) => report._id !== message.reportId)
         );
         fetchReports();
       } else if (message.type === "update-report") {
         setReports((prevReports) =>
-          prevReports.filter((report) => report._id === message.reportId)
+          prevReports.map((report) =>
+            report._id === message.reportId ? message.data : report
+          )
         );
         fetchReports();
+      }
+    };
+
+    return () => {
+      if (socket) {
+        socket.close();
       }
     };
   }, [setNotifications]);
 
   function logout() {
-    axios.post("https://backoasis-production.up.railway.app/logout").then(() => {
-      setWs(null);
+    axios.post("https://backoasis-production.up.railway.app/logout", null, { withCredentials: true }).then(() => {
+      if (ws) {
+        ws.close();
+      }
       setId(null);
       setUsername(null);
-      history("/");
+      navigate("/");
     });
   }
+
   return (
     <>
       <title>Dashboard</title>
